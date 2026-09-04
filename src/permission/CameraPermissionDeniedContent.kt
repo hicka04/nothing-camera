@@ -1,4 +1,4 @@
-package dev.hicka04.nothingcamera.preview
+package dev.hicka04.nothingcamera.permission
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

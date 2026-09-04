@@ -1,0 +1,8 @@
+product: android/app
+
+settings:
+  android:
+    namespace: "dev.hicka04.nothingcamera"
+    applicationId: "dev.hicka04.nothingcamera"
+    compileSdk: 37
+    minSdk: 34

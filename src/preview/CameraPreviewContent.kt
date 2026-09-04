@@ -1,4 +1,4 @@
-package dev.hicka04.nothingcamera
+package dev.hicka04.nothingcamera.preview
 
 import androidx.camera.compose.CameraXViewfinder
 import androidx.compose.foundation.layout.fillMaxSize

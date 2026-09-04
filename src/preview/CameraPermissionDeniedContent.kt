@@ -1,4 +1,4 @@
-package dev.hicka04.nothingcamera
+package dev.hicka04.nothingcamera.preview
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import dev.hicka04.nothingcamera.R
 
 /**
  * カメラ権限が許可されていないことを伝え、再度許可するための導線を表示する。

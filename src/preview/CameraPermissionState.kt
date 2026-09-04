@@ -1,4 +1,4 @@
-package dev.hicka04.nothingcamera
+package dev.hicka04.nothingcamera.preview
 
 import android.Manifest
 import android.content.Context

@@ -1,4 +1,4 @@
-package dev.hicka04.nothingcamera
+package dev.hicka04.nothingcamera.preview
 
 import android.content.Context
 import androidx.camera.core.CameraSelector.DEFAULT_BACK_CAMERA

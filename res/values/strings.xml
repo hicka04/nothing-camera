@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Nothing Camera</string>
+    <string name="camera_permission_rationale">写真や映像を撮影するには、カメラへのアクセスを許可してください。</string>
+    <string name="camera_permission_denied">カメラへのアクセスが許可されていません。設定画面から許可してください。</string>
+    <string name="camera_permission_request">カメラの使用を許可する</string>
+    <string name="camera_permission_open_settings">設定を開く</string>
 </resources>

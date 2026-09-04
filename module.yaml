@@ -1,8 +1,14 @@
 product: android/app
 
+dependencies:
+  - $compose.foundation
+  - $compose.material3
+  - androidx.activity:activity-compose:1.13.0
+
 settings:
   android:
     namespace: "dev.hicka04.nothingcamera"
     applicationId: "dev.hicka04.nothingcamera"
     compileSdk: 37
     minSdk: 34
+  compose: enabled

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -34,12 +35,22 @@ fun CameraPermissionDeniedContent(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val message = if (permissionState.status == CameraPermissionStatus.ShouldShowRationale) {
-            stringResource(R.string.camera_permission_rationale)
+        if (permissionState.status == CameraPermissionStatus.ShouldShowRationale) {
+            Text(
+                text = stringResource(R.string.camera_permission_rationale),
+                style = MaterialTheme.typography.bodyLarge,
+            )
         } else {
-            stringResource(R.string.camera_permission_denied)
+            Text(
+                text = stringResource(R.string.camera_permission_denied_title),
+                style = MaterialTheme.typography.titleLarge,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = stringResource(R.string.camera_permission_denied_description),
+                style = MaterialTheme.typography.bodyLarge,
+            )
         }
-        Text(text = message)
         Spacer(modifier = Modifier.height(16.dp))
         if (permissionState.status == CameraPermissionStatus.ShouldShowRationale) {
             Button(onClick = { permissionState.request() }) {

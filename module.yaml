@@ -9,6 +9,8 @@ dependencies:
   - androidx.camera:camera-lifecycle:1.6.2
   - androidx.camera:camera-compose:1.6.2
   - androidx.lifecycle:lifecycle-runtime-compose:2.9.4
+  - androidx.compose.ui:ui-tooling-preview:1.11.2
+  - androidx.compose.ui:ui-tooling:1.11.2
 
 settings:
   android:

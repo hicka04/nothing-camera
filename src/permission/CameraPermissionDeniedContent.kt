@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import dev.hicka04.nothingcamera.R
 
@@ -46,6 +47,7 @@ fun CameraPermissionDeniedContent(
                 Text(
                     text = stringResource(R.string.camera_permission_denied_title),
                     style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
                 )
                 Text(
                     text = stringResource(R.string.camera_permission_denied_description),

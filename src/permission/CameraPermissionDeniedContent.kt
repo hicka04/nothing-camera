@@ -2,9 +2,7 @@ package dev.hicka04.nothingcamera.permission
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -32,7 +30,7 @@ fun CameraPermissionDeniedContent(
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp),
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         if (permissionState.status == CameraPermissionStatus.ShouldShowRationale) {
@@ -41,17 +39,20 @@ fun CameraPermissionDeniedContent(
                 style = MaterialTheme.typography.bodyLarge,
             )
         } else {
-            Text(
-                text = stringResource(R.string.camera_permission_denied_title),
-                style = MaterialTheme.typography.titleLarge,
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = stringResource(R.string.camera_permission_denied_description),
-                style = MaterialTheme.typography.bodyLarge,
-            )
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    text = stringResource(R.string.camera_permission_denied_title),
+                    style = MaterialTheme.typography.titleLarge,
+                )
+                Text(
+                    text = stringResource(R.string.camera_permission_denied_description),
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+            }
         }
-        Spacer(modifier = Modifier.height(16.dp))
         if (permissionState.status == CameraPermissionStatus.ShouldShowRationale) {
             Button(onClick = { permissionState.request() }) {
                 Text(stringResource(R.string.camera_permission_request))

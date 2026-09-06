@@ -1,0 +1,99 @@
+package dev.hicka04.nothingcamera.permission
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import dev.hicka04.nothingcamera.NothingCameraTheme
+import dev.hicka04.nothingcamera.R
+
+/**
+ * カメラ権限が許可されていないことを伝え、再度許可するための導線を表示する。
+ *
+ * まだ許可の余地がある（[CameraPermissionStatus.ShouldShowRationale]）場合は
+ * 権限リクエストダイアログを再表示するボタンを、永久に拒否されている
+ * （[CameraPermissionStatus.Denied]）場合はアプリの設定画面を開くボタンを表示する。
+ */
+@Composable
+fun CameraPermissionDeniedContent(
+    permissionState: CameraPermissionState,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        if (permissionState.status == CameraPermissionStatus.ShouldShowRationale) {
+            Text(
+                text = stringResource(R.string.camera_permission_rationale),
+                style = MaterialTheme.typography.bodyLarge,
+            )
+        } else {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    text = stringResource(R.string.camera_permission_denied_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(
+                    text = stringResource(R.string.camera_permission_denied_description),
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+            }
+        }
+        if (permissionState.status == CameraPermissionStatus.ShouldShowRationale) {
+            Button(onClick = { permissionState.request() }) {
+                Text(stringResource(R.string.camera_permission_request))
+            }
+        } else {
+            Button(onClick = { permissionState.openAppSettings() }) {
+                Text(stringResource(R.string.camera_permission_open_settings))
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun CameraPermissionDeniedContentShouldShowRationalePreview() {
+    NothingCameraTheme {
+        CameraPermissionDeniedContent(
+            permissionState = CameraPermissionState(
+                status = CameraPermissionStatus.ShouldShowRationale,
+                launchPermissionRequest = {},
+                context = LocalContext.current,
+            ),
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun CameraPermissionDeniedContentDeniedPreview() {
+    NothingCameraTheme {
+        CameraPermissionDeniedContent(
+            permissionState = CameraPermissionState(
+                status = CameraPermissionStatus.Denied,
+                launchPermissionRequest = {},
+                context = LocalContext.current,
+            ),
+        )
+    }
+}

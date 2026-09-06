@@ -5,4 +5,5 @@
     <string name="camera_permission_denied_description">設定画面から許可してください</string>
     <string name="camera_permission_request">カメラの使用を許可する</string>
     <string name="camera_permission_open_settings">設定を開く</string>
+    <string name="camera_capture_failed">写真の保存に失敗しました</string>
 </resources>

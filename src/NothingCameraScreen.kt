@@ -5,10 +5,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import dev.hicka04.nothingcamera.camera.CameraContent
 import dev.hicka04.nothingcamera.permission.CameraPermissionDeniedContent
 import dev.hicka04.nothingcamera.permission.CameraPermissionStatus
 import dev.hicka04.nothingcamera.permission.rememberCameraPermissionState
-import dev.hicka04.nothingcamera.preview.CameraPreviewContent
 
 @Composable
 fun NothingCameraScreen() {
@@ -20,7 +20,7 @@ fun NothingCameraScreen() {
             }
 
             if (permissionState.status == CameraPermissionStatus.Granted) {
-                CameraPreviewContent(modifier = Modifier.fillMaxSize())
+                CameraContent(modifier = Modifier.fillMaxSize())
             } else {
                 CameraPermissionDeniedContent(
                     permissionState = permissionState,

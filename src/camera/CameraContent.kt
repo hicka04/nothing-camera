@@ -18,10 +18,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.hicka04.nothingcamera.R
+import dev.hicka04.nothingcamera.capture.RecordingIndicator
 import dev.hicka04.nothingcamera.capture.ShutterButton
+import dev.hicka04.nothingcamera.permission.hasAudioPermission
+import dev.hicka04.nothingcamera.permission.rememberRequestAudioPermission
 import dev.hicka04.nothingcamera.preview.CameraPreviewContent
 import kotlinx.coroutines.launch
 
@@ -30,11 +34,20 @@ import kotlinx.coroutines.launch
  */
 @Composable
 fun CameraContent(modifier: Modifier = Modifier) {
+    val context = LocalContext.current
     val cameraState = rememberCameraState()
     val coroutineScope = rememberCoroutineScope()
     val flashAlpha = remember { Animatable(0f) }
     val snackbarHostState = remember { SnackbarHostState() }
     val captureFailedMessage = stringResource(R.string.camera_capture_failed)
+    val videoCaptureFailedMessage = stringResource(R.string.video_capture_failed)
+    val audioPermissionDeniedMessage = stringResource(R.string.audio_permission_denied)
+
+    val requestAudioPermission = rememberRequestAudioPermission { granted ->
+        if (!granted) {
+            coroutineScope.launch { snackbarHostState.showSnackbar(audioPermissionDeniedMessage) }
+        }
+    }
 
     Scaffold(
         modifier = modifier,
@@ -48,7 +61,7 @@ fun CameraContent(modifier: Modifier = Modifier) {
             )
 
             ShutterButton(
-                onClick = {
+                onTap = {
                     coroutineScope.launch {
                         flashAlpha.snapTo(1f)
                         flashAlpha.animateTo(0f, animationSpec = tween(durationMillis = 300))
@@ -61,12 +74,36 @@ fun CameraContent(modifier: Modifier = Modifier) {
                         }
                     }
                 },
+                onLongPressStart = {
+                    if (hasAudioPermission(context)) {
+                        cameraState.startRecording(
+                            onError = {
+                                coroutineScope.launch {
+                                    snackbarHostState.showSnackbar(videoCaptureFailedMessage)
+                                }
+                            },
+                        )
+                    } else {
+                        requestAudioPermission()
+                    }
+                },
+                onLongPressEnd = { cameraState.stopRecording() },
                 enabled = !cameraState.isCapturing,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .safeDrawingPadding()
                     .padding(bottom = 32.dp),
             )
+
+            if (cameraState.isRecording) {
+                RecordingIndicator(
+                    durationMillis = cameraState.recordingDurationMillis,
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .safeDrawingPadding()
+                        .padding(top = 16.dp),
+                )
+            }
 
             Box(
                 modifier = Modifier

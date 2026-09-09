@@ -13,26 +13,34 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.hicka04.nothingcamera.NothingCameraTheme
+import kotlinx.coroutines.delay
 
 /**
  * 白い内円と外リングで構成された、カメラアプリ定番の見た目のシャッターボタン。
  *
- * 押下中は内円が縮小し、離すと元に戻る。
+ * タップで [onTap] が呼ばれ、長押しでは押し始めに [onLongPressStart]、
+ * 離した時に [onLongPressEnd] が呼ばれる。押下中は内円が縮小し、離すと元に戻る。
  */
 @Composable
 fun ShutterButton(
-    onClick: () -> Unit,
+    onTap: () -> Unit,
+    onLongPressStart: () -> Unit,
+    onLongPressEnd: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
 ) {
@@ -43,6 +51,19 @@ fun ShutterButton(
         label = "ShutterButtonInnerCircleScale",
     )
 
+    var isLongPressing by remember { mutableStateOf(false) }
+    val longPressTimeoutMillis = LocalViewConfiguration.current.longPressTimeoutMillis
+    LaunchedEffect(isPressed) {
+        if (isPressed) {
+            delay(longPressTimeoutMillis)
+            isLongPressing = true
+            onLongPressStart()
+        } else if (isLongPressing) {
+            isLongPressing = false
+            onLongPressEnd()
+        }
+    }
+
     Box(
         modifier = modifier
             .size(72.dp)
@@ -52,7 +73,7 @@ fun ShutterButton(
                 interactionSource = interactionSource,
                 indication = ripple(bounded = false),
                 enabled = enabled,
-                onClick = onClick,
+                onClick = { if (!isLongPressing) onTap() },
             )
             .border(width = 2.dp, color = Color.White, shape = CircleShape)
             .padding(6.dp),
@@ -72,7 +93,7 @@ fun ShutterButton(
 @Composable
 private fun ShutterButtonPreview() {
     NothingCameraTheme {
-        ShutterButton(onClick = {})
+        ShutterButton(onTap = {}, onLongPressStart = {}, onLongPressEnd = {})
     }
 }
 
@@ -80,6 +101,6 @@ private fun ShutterButtonPreview() {
 @Composable
 private fun ShutterButtonDisabledPreview() {
     NothingCameraTheme {
-        ShutterButton(onClick = {}, enabled = false)
+        ShutterButton(onTap = {}, onLongPressStart = {}, onLongPressEnd = {}, enabled = false)
     }
 }

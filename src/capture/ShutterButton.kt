@@ -1,9 +1,10 @@
 package dev.hicka04.nothingcamera.capture
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
@@ -11,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -28,13 +28,16 @@ import dev.hicka04.nothingcamera.NothingCameraTheme
 /**
  * 白い内円と外リングで構成された、カメラアプリ定番の見た目のシャッターボタン。
  *
- * 押下中は内円が縮小し、離すと元に戻る。
+ * タップで [onClick] が、長押しで [onLongClick] が呼ばれる。
+ * 押下中は内円が縮小し、離すと元に戻る。[isRecording] の間は赤色になる。
  */
 @Composable
 fun ShutterButton(
     onClick: () -> Unit,
+    onLongClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    isRecording: Boolean = false,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -42,19 +45,24 @@ fun ShutterButton(
         targetValue = if (isPressed) 0.85f else 1f,
         label = "ShutterButtonInnerCircleScale",
     )
+    val color by animateColorAsState(
+        targetValue = if (isRecording) Color.Red else Color.White,
+        label = "ShutterButtonColor",
+    )
 
     Box(
         modifier = modifier
             .size(72.dp)
             .alpha(if (enabled) 1f else 0.5f)
             .clip(CircleShape)
-            .clickable(
+            .combinedClickable(
                 interactionSource = interactionSource,
-                indication = ripple(bounded = false),
+                indication = null,
                 enabled = enabled,
+                onLongClick = onLongClick,
                 onClick = onClick,
             )
-            .border(width = 2.dp, color = Color.White, shape = CircleShape)
+            .border(width = 2.dp, color = color, shape = CircleShape)
             .padding(6.dp),
         contentAlignment = Alignment.Center,
     ) {
@@ -63,7 +71,7 @@ fun ShutterButton(
                 .fillMaxSize()
                 .scale(innerCircleScale)
                 .clip(CircleShape)
-                .background(Color.White),
+                .background(color),
         )
     }
 }
@@ -72,7 +80,7 @@ fun ShutterButton(
 @Composable
 private fun ShutterButtonPreview() {
     NothingCameraTheme {
-        ShutterButton(onClick = {})
+        ShutterButton(onClick = {}, onLongClick = {})
     }
 }
 
@@ -80,6 +88,14 @@ private fun ShutterButtonPreview() {
 @Composable
 private fun ShutterButtonDisabledPreview() {
     NothingCameraTheme {
-        ShutterButton(onClick = {}, enabled = false)
+        ShutterButton(onClick = {}, onLongClick = {}, enabled = false)
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ShutterButtonRecordingPreview() {
+    NothingCameraTheme {
+        ShutterButton(onClick = {}, onLongClick = {}, isRecording = true)
     }
 }

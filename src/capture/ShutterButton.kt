@@ -1,5 +1,6 @@
 package dev.hicka04.nothingcamera.capture
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -29,7 +30,7 @@ import dev.hicka04.nothingcamera.NothingCameraTheme
  * 白い内円と外リングで構成された、カメラアプリ定番の見た目のシャッターボタン。
  *
  * タップで [onClick] が、長押しで [onLongClick] が呼ばれる。
- * 押下中は内円が縮小し、離すと元に戻る。
+ * 押下中は内円が縮小し、離すと元に戻る。[isRecording] の間は赤色になる。
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -38,12 +39,17 @@ fun ShutterButton(
     onLongClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    isRecording: Boolean = false,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val innerCircleScale by animateFloatAsState(
         targetValue = if (isPressed) 0.85f else 1f,
         label = "ShutterButtonInnerCircleScale",
+    )
+    val color by animateColorAsState(
+        targetValue = if (isRecording) Color.Red else Color.White,
+        label = "ShutterButtonColor",
     )
 
     Box(
@@ -58,7 +64,7 @@ fun ShutterButton(
                 onLongClick = onLongClick,
                 onClick = onClick,
             )
-            .border(width = 2.dp, color = Color.White, shape = CircleShape)
+            .border(width = 2.dp, color = color, shape = CircleShape)
             .padding(6.dp),
         contentAlignment = Alignment.Center,
     ) {
@@ -67,7 +73,7 @@ fun ShutterButton(
                 .fillMaxSize()
                 .scale(innerCircleScale)
                 .clip(CircleShape)
-                .background(Color.White),
+                .background(color),
         )
     }
 }
@@ -85,5 +91,13 @@ private fun ShutterButtonPreview() {
 private fun ShutterButtonDisabledPreview() {
     NothingCameraTheme {
         ShutterButton(onClick = {}, onLongClick = {}, enabled = false)
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ShutterButtonRecordingPreview() {
+    NothingCameraTheme {
+        ShutterButton(onClick = {}, onLongClick = {}, isRecording = true)
     }
 }

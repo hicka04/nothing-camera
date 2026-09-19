@@ -92,6 +92,7 @@ fun CameraContent(modifier: Modifier = Modifier) {
                     }
                 },
                 enabled = !cameraState.isCapturing,
+                isRecording = cameraState.isRecording,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .safeDrawingPadding()

@@ -4,20 +4,17 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.indication
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.PressInteraction
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -43,8 +40,7 @@ fun ShutterButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
 ) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
+    var isPressed by remember { mutableStateOf(false) }
     val innerCircleScale by animateFloatAsState(
         targetValue = if (isPressed) 0.85f else 1f,
         label = "ShutterButtonInnerCircleScale",
@@ -66,13 +62,10 @@ fun ShutterButton(
                     Modifier.pointerInput(Unit) {
                         var isLongPressing = false
                         detectTapGestures(
-                            onPress = { offset ->
-                                val press = PressInteraction.Press(offset)
-                                interactionSource.emit(press)
-                                val released = tryAwaitRelease()
-                                interactionSource.emit(
-                                    if (released) PressInteraction.Release(press) else PressInteraction.Cancel(press),
-                                )
+                            onPress = {
+                                isPressed = true
+                                tryAwaitRelease()
+                                isPressed = false
                                 if (isLongPressing) {
                                     isLongPressing = false
                                     currentOnLongPressEnd()
@@ -89,7 +82,6 @@ fun ShutterButton(
                     Modifier
                 },
             )
-            .indication(interactionSource, ripple(bounded = false))
             .border(width = 2.dp, color = Color.White, shape = CircleShape)
             .padding(6.dp),
         contentAlignment = Alignment.Center,

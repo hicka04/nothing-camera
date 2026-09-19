@@ -3,8 +3,10 @@ package dev.hicka04.nothingcamera.capture
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,22 +15,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalViewConfiguration
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.hicka04.nothingcamera.NothingCameraTheme
-import kotlinx.coroutines.delay
 
 /**
  * 白い内円と外リングで構成された、カメラアプリ定番の見た目のシャッターボタン。
@@ -51,30 +50,46 @@ fun ShutterButton(
         label = "ShutterButtonInnerCircleScale",
     )
 
-    var isLongPressing by remember { mutableStateOf(false) }
-    val longPressTimeoutMillis = LocalViewConfiguration.current.longPressTimeoutMillis
-    LaunchedEffect(isPressed) {
-        if (isPressed) {
-            delay(longPressTimeoutMillis)
-            isLongPressing = true
-            onLongPressStart()
-        } else if (isLongPressing) {
-            isLongPressing = false
-            onLongPressEnd()
-        }
-    }
+    // pointerInput(Unit) は初回起動時のクロージャを使い続けるため、呼び出し側の
+    // 再コンポーズで onTap 等の参照が変わっても最新のものを呼べるようにする。
+    val currentOnTap by rememberUpdatedState(onTap)
+    val currentOnLongPressStart by rememberUpdatedState(onLongPressStart)
+    val currentOnLongPressEnd by rememberUpdatedState(onLongPressEnd)
 
     Box(
         modifier = modifier
             .size(72.dp)
             .alpha(if (enabled) 1f else 0.5f)
             .clip(CircleShape)
-            .clickable(
-                interactionSource = interactionSource,
-                indication = ripple(bounded = false),
-                enabled = enabled,
-                onClick = { if (!isLongPressing) onTap() },
+            .then(
+                if (enabled) {
+                    Modifier.pointerInput(Unit) {
+                        var isLongPressing = false
+                        detectTapGestures(
+                            onPress = { offset ->
+                                val press = PressInteraction.Press(offset)
+                                interactionSource.emit(press)
+                                val released = tryAwaitRelease()
+                                interactionSource.emit(
+                                    if (released) PressInteraction.Release(press) else PressInteraction.Cancel(press),
+                                )
+                                if (isLongPressing) {
+                                    isLongPressing = false
+                                    currentOnLongPressEnd()
+                                }
+                            },
+                            onLongPress = {
+                                isLongPressing = true
+                                currentOnLongPressStart()
+                            },
+                            onTap = { currentOnTap() },
+                        )
+                    }
+                } else {
+                    Modifier
+                },
             )
+            .indication(interactionSource, ripple(bounded = false))
             .border(width = 2.dp, color = Color.White, shape = CircleShape)
             .padding(6.dp),
         contentAlignment = Alignment.Center,

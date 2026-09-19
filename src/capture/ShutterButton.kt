@@ -2,7 +2,6 @@ package dev.hicka04.nothingcamera.capture
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
@@ -32,7 +31,6 @@ import dev.hicka04.nothingcamera.NothingCameraTheme
  * タップで [onClick] が、長押しで [onLongClick] が呼ばれる。
  * 押下中は内円が縮小し、離すと元に戻る。[isRecording] の間は赤色になる。
  */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ShutterButton(
     onClick: () -> Unit,

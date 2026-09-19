@@ -62,19 +62,23 @@ fun CameraContent(modifier: Modifier = Modifier) {
 
             ShutterButton(
                 onTap = {
-                    coroutineScope.launch {
-                        flashAlpha.snapTo(1f)
-                        flashAlpha.animateTo(0f, animationSpec = tween(durationMillis = 300))
-                    }
-                    coroutineScope.launch {
-                        try {
-                            cameraState.takePicture()
-                        } catch (e: ImageCaptureException) {
-                            snackbarHostState.showSnackbar(captureFailedMessage)
+                    if (cameraState.isRecording) {
+                        cameraState.stopRecording()
+                    } else {
+                        coroutineScope.launch {
+                            flashAlpha.snapTo(1f)
+                            flashAlpha.animateTo(0f, animationSpec = tween(durationMillis = 300))
+                        }
+                        coroutineScope.launch {
+                            try {
+                                cameraState.takePicture()
+                            } catch (e: ImageCaptureException) {
+                                snackbarHostState.showSnackbar(captureFailedMessage)
+                            }
                         }
                     }
                 },
-                onLongPressStart = {
+                onLongPress = {
                     if (hasAudioPermission(context)) {
                         cameraState.startRecording(
                             onError = {
@@ -87,7 +91,6 @@ fun CameraContent(modifier: Modifier = Modifier) {
                         requestAudioPermission()
                     }
                 },
-                onLongPressEnd = { cameraState.stopRecording() },
                 enabled = !cameraState.isCapturing,
                 modifier = Modifier
                     .align(Alignment.BottomCenter)

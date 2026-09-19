@@ -1,9 +1,12 @@
 package dev.hicka04.nothingcamera.capture
 
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -11,17 +14,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.hicka04.nothingcamera.NothingCameraTheme
@@ -29,58 +28,35 @@ import dev.hicka04.nothingcamera.NothingCameraTheme
 /**
  * 白い内円と外リングで構成された、カメラアプリ定番の見た目のシャッターボタン。
  *
- * タップで [onTap] が呼ばれ、長押しでは押し始めに [onLongPressStart]、
- * 離した時に [onLongPressEnd] が呼ばれる。押下中は内円が縮小し、離すと元に戻る。
+ * タップで [onTap] が、長押しで [onLongPress] が呼ばれる。
+ * 押下中は内円が縮小し、離すと元に戻る。
  */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ShutterButton(
     onTap: () -> Unit,
-    onLongPressStart: () -> Unit,
-    onLongPressEnd: () -> Unit,
+    onLongPress: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
 ) {
-    var isPressed by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
     val innerCircleScale by animateFloatAsState(
         targetValue = if (isPressed) 0.85f else 1f,
         label = "ShutterButtonInnerCircleScale",
     )
-
-    // pointerInput(Unit) は初回起動時のクロージャを使い続けるため、呼び出し側の
-    // 再コンポーズで onTap 等の参照が変わっても最新のものを呼べるようにする。
-    val currentOnTap by rememberUpdatedState(onTap)
-    val currentOnLongPressStart by rememberUpdatedState(onLongPressStart)
-    val currentOnLongPressEnd by rememberUpdatedState(onLongPressEnd)
 
     Box(
         modifier = modifier
             .size(72.dp)
             .alpha(if (enabled) 1f else 0.5f)
             .clip(CircleShape)
-            .then(
-                if (enabled) {
-                    Modifier.pointerInput(Unit) {
-                        var isLongPressing = false
-                        detectTapGestures(
-                            onPress = {
-                                isPressed = true
-                                tryAwaitRelease()
-                                isPressed = false
-                                if (isLongPressing) {
-                                    isLongPressing = false
-                                    currentOnLongPressEnd()
-                                }
-                            },
-                            onLongPress = {
-                                isLongPressing = true
-                                currentOnLongPressStart()
-                            },
-                            onTap = { currentOnTap() },
-                        )
-                    }
-                } else {
-                    Modifier
-                },
+            .combinedClickable(
+                interactionSource = interactionSource,
+                indication = null,
+                enabled = enabled,
+                onLongClick = onLongPress,
+                onClick = onTap,
             )
             .border(width = 2.dp, color = Color.White, shape = CircleShape)
             .padding(6.dp),
@@ -100,7 +76,7 @@ fun ShutterButton(
 @Composable
 private fun ShutterButtonPreview() {
     NothingCameraTheme {
-        ShutterButton(onTap = {}, onLongPressStart = {}, onLongPressEnd = {})
+        ShutterButton(onTap = {}, onLongPress = {})
     }
 }
 
@@ -108,6 +84,6 @@ private fun ShutterButtonPreview() {
 @Composable
 private fun ShutterButtonDisabledPreview() {
     NothingCameraTheme {
-        ShutterButton(onTap = {}, onLongPressStart = {}, onLongPressEnd = {}, enabled = false)
+        ShutterButton(onTap = {}, onLongPress = {}, enabled = false)
     }
 }

@@ -61,7 +61,7 @@ fun CameraContent(modifier: Modifier = Modifier) {
             )
 
             ShutterButton(
-                onTap = {
+                onClick = {
                     if (cameraState.isRecording) {
                         cameraState.stopRecording()
                     } else {
@@ -78,7 +78,7 @@ fun CameraContent(modifier: Modifier = Modifier) {
                         }
                     }
                 },
-                onLongPress = {
+                onLongClick = {
                     if (hasAudioPermission(context)) {
                         cameraState.startRecording(
                             onError = {

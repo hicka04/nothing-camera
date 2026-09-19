@@ -28,14 +28,14 @@ import dev.hicka04.nothingcamera.NothingCameraTheme
 /**
  * 白い内円と外リングで構成された、カメラアプリ定番の見た目のシャッターボタン。
  *
- * タップで [onTap] が、長押しで [onLongPress] が呼ばれる。
+ * タップで [onClick] が、長押しで [onLongClick] が呼ばれる。
  * 押下中は内円が縮小し、離すと元に戻る。
  */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ShutterButton(
-    onTap: () -> Unit,
-    onLongPress: () -> Unit,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
 ) {
@@ -55,8 +55,8 @@ fun ShutterButton(
                 interactionSource = interactionSource,
                 indication = null,
                 enabled = enabled,
-                onLongClick = onLongPress,
-                onClick = onTap,
+                onLongClick = onLongClick,
+                onClick = onClick,
             )
             .border(width = 2.dp, color = Color.White, shape = CircleShape)
             .padding(6.dp),
@@ -76,7 +76,7 @@ fun ShutterButton(
 @Composable
 private fun ShutterButtonPreview() {
     NothingCameraTheme {
-        ShutterButton(onTap = {}, onLongPress = {})
+        ShutterButton(onClick = {}, onLongClick = {})
     }
 }
 
@@ -84,6 +84,6 @@ private fun ShutterButtonPreview() {
 @Composable
 private fun ShutterButtonDisabledPreview() {
     NothingCameraTheme {
-        ShutterButton(onTap = {}, onLongPress = {}, enabled = false)
+        ShutterButton(onClick = {}, onLongClick = {}, enabled = false)
     }
 }
